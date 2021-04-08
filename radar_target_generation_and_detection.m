@@ -14,8 +14,8 @@ clc;
 % *%TODO* :
 % define the target's initial position and velocity. Note : Velocity
 % remains contant
-R = 110; %meters
-V = -20; %m/s velocity/speed of the target
+INITIAL_RANGE = 110; %meters initial range
+INITIAL_VELOCITY = -20; %m/s initial velocity/speed of the target
 
 
 %% FMCW Waveform Generation
@@ -44,39 +44,41 @@ Nr=1024;                  %for length of time OR # of range cells
 
 % Timestamp for running the displacement scenario for every sample on each
 % chirp
-t=linspace(0, Nd*Tchirp, Nr*Nd); %total time for samples
+time_vector = linspace(0, Nd * T_CHIRP, Nr * Nd); %total time for samples
 
 
 %Creating the vectors for Tx, Rx and Mix based on the total samples input.
-Tx=zeros(1,length(t)); %transmitted signal
-Rx=zeros(1,length(t)); %received signal
-Mix = zeros(1,length(t)); %beat signal
+Tx = zeros(1, length(t)); %transmitted signal
+Rx = zeros(1, length(t)); %received signal
+Mix = zeros(1, length(t)); %beat signal
 
 %Similar vectors for range_covered and time delay.
-r_t=zeros(1,length(t));
-td=zeros(1,length(t));
+range_covered = zeros(1, length(t));
+time_delay = zeros(1, length(t));
 
 
 %% Signal generation and Moving Target simulation
 % Running the radar scenario over the time. 
 
-for i=1:length(t)         
+for i=1:length(time_vector)         
     
     
     % *%TODO* :
     %For each time stamp update the Range of the Target for constant velocity. 
-    
+    range_covered = INITIAL_RANGE + INITIAL_VELOCITY * time_vector(i);
+    time_delay = 2 * range_covered(i) / C;
+        
     % *%TODO* :
     %For each time sample we need update the transmitted and
     %received signal. 
-    Tx(i) = 
-    Rx (i)  =
+    Tx(i) = cos(2 * pi * (Fc * time_vector(i) + SLOPE * time_vector(i)^2/2));
+    Rx(i) = cos(2 * pi * (Fc * (time_vector(i)-time_delay(i)) + SLOPE * (time_vector(i)-time_delay(i))^2/2));
     
     % *%TODO* :
     %Now by mixing the Transmit and Receive generate the beat signal
     %This is done by element wise matrix multiplication of Transmit and
     %Receiver Signal
-    Mix(i) = 
+    Mix(i) = Tx.*Rx;
     
 end
 

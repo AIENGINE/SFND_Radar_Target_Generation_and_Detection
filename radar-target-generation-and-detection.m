@@ -14,7 +14,8 @@ clc;
 % *%TODO* :
 % define the target's initial position and velocity. Note : Velocity
 % remains contant
- 
+R = 110; %meters
+V = -20; %m/s velocity/speed of the target
 
 
 %% FMCW Waveform Generation
@@ -23,12 +24,17 @@ clc;
 %Design the FMCW waveform by giving the specs of each of its parameters.
 % Calculate the Bandwidth (B), Chirp Time (Tchirp) and Slope (slope) of the FMCW
 % chirp using the requirements above.
-
-
 %Operating carrier frequency of Radar 
-fc= 77e9;             %carrier freq
+Fc= 77e9;             %carrier freq
+MAX_RANGE = 200;
+MAX_VELOCITY = 100;
+RANGE_RESOLUTION = 1; %1meter
+C = 3e8;
 
-                                                          
+B_SWEEP = C/2 * RANGE_RESOLUTION;
+T_CHIRP = 5.5 * 2 * MAX_RANGE / C;
+SLOPE = B_SWEEP / T_CHIRP; 
+
 %The number of chirps in one sequence. Its ideal to have 2^ value for the ease of running the FFT
 %for Doppler Estimation. 
 Nd=128;                   % #of doppler cells OR #of sent periods % number of chirps
@@ -38,7 +44,7 @@ Nr=1024;                  %for length of time OR # of range cells
 
 % Timestamp for running the displacement scenario for every sample on each
 % chirp
-t=linspace(0,Nd*Tchirp,Nr*Nd); %total time for samples
+t=linspace(0, Nd*Tchirp, Nr*Nd); %total time for samples
 
 
 %Creating the vectors for Tx, Rx and Mix based on the total samples input.

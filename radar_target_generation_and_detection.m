@@ -48,13 +48,13 @@ time_vector = linspace(0, Nd * T_CHIRP, Nr * Nd); %total time for samples
 
 
 %Creating the vectors for Tx, Rx and Mix based on the total samples input.
-Tx = zeros(1, length(t)); %transmitted signal
-Rx = zeros(1, length(t)); %received signal
-Mix = zeros(1, length(t)); %beat signal
+Tx = zeros(1, length(time_vector)); %transmitted signal
+Rx = zeros(1, length(time_vector)); %received signal
+Mix = zeros(1, length(time_vector)); %beat signal
 
 %Similar vectors for range_covered and time delay.
-range_covered = zeros(1, length(t));
-time_delay = zeros(1, length(t));
+range_covered = zeros(1, length(time_vector));
+time_delay = zeros(1, length(time_vector));
 
 
 %% Signal generation and Moving Target simulation
@@ -65,8 +65,8 @@ for i=1:length(time_vector)
     
     % *%TODO* :
     %For each time stamp update the Range of the Target for constant velocity. 
-    range_covered = INITIAL_RANGE + INITIAL_VELOCITY * time_vector(i);
-    time_delay = 2 * range_covered(i) / C;
+    range_covered(i) = INITIAL_RANGE + INITIAL_VELOCITY * time_vector(i);
+    time_delay(i) = 2 * range_covered(i) / C;
         
     % *%TODO* :
     %For each time sample we need update the transmitted and
@@ -78,7 +78,7 @@ for i=1:length(time_vector)
     %Now by mixing the Transmit and Receive generate the beat signal
     %This is done by element wise matrix multiplication of Transmit and
     %Receiver Signal
-    Mix(i) = Tx.*Rx;
+    Mix(i) = Tx(i) * Rx(i);
     
 end
 

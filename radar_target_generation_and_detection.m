@@ -45,7 +45,7 @@ Nr=1024;                  %for length of time OR # of range cells
 % Timestamp for running the displacement scenario for every sample on each
 % chirp
 time_vector = linspace(0, Nd * T_CHIRP, Nr * Nd); %total time for samples
-
+signal_length = Nd * T_CHIRP;
 
 %Creating the vectors for Tx, Rx and Mix based on the total samples input.
 Tx = zeros(1, length(time_vector)); %transmitted signal
@@ -70,7 +70,8 @@ for i=1:length(time_vector)
         
     % *%TODO* :
     %For each time sample we need update the transmitted and
-    %received signal. 
+    %received signal.
+    % FM of CW takes place in Tx and Rx
     Tx(i) = cos(2 * pi * (Fc * time_vector(i) + SLOPE * time_vector(i)^2/2));
     Rx(i) = cos(2 * pi * (Fc * (time_vector(i)-time_delay(i)) + SLOPE * (time_vector(i)-time_delay(i))^2/2));
     
@@ -84,22 +85,27 @@ end
 
 %% RANGE MEASUREMENT
 
-
- % *%TODO* :
+% *%TODO* :
 %reshape the vector into Nr*Nd array. Nr and Nd here would also define the size of
 %Range and Doppler FFT respectively.
+
+Mix_reshape = reshape(Mix, Nr, Nd);
 
  % *%TODO* :
 %run the FFT on the beat signal along the range bins dimension (Nr) and
 %normalize.
+fft_range = fft(Mix_reshape, Nr);
 
  % *%TODO* :
 % Take the absolute value of FFT output
+fft_range_abs = abs(fft_range);
 
  % *%TODO* :
 % Output of FFT is double sided signal, but we are interested in only one side of the spectrum.
 % Hence we throw out half of the samples.
-
+fft_range_normalized = fft_range_abs ./ max(fft_range_abs) ; %elemewise normalization 
+%fft_range_half_spectrum = fft_range_normalized(1:Nr/2, 1:2);
+fft_range_half_spectrum = fft_range_normalized(1:Nr/2) %beat signal in a signal half col. 
 
 %plotting the range
 figure ('Name','Range from First FFT')
@@ -107,8 +113,7 @@ subplot(2,1,1)
 
  % *%TODO* :
  % plot FFT output 
-
- 
+ plot(fft_range_half_spectrum); 
 axis ([0 200 0 1]);
 
 

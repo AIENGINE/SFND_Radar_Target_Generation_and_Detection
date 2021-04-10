@@ -183,7 +183,7 @@ for i = Tr+Gr+1:(Nr/2)-(Gr+Tr)  %Nr/2 because of taking one side of the spectrum
             end
         end
         
-        threshold = pow2db(noise_level / (2 * (Tr+Gr+1) * 2 * (Td+Gd+1) - (Gr * Gd)-1));
+        threshold = pow2db(noise_level / (2 * (Tr+Gr+1) * 2 * (Td+Gd+1) - (Gr * Gd)-1)); %pow2db on normalized noise level 
         threshold = threshold + Offset;
         CUT = RDM(i, j);
         

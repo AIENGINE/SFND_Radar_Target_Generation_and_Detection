@@ -49,7 +49,7 @@ From Figure 1. the following steps can be concluded and implemented the final pr
     
     end
    ```  
-4. Range-Doppler Map(2D-FFT) : 1D-fft was performed on the single half column elements of the mix to show that range from 1d fft can be calculated if it is performed in the direction of chaning rows. After that 2D-FFT is performed on the whole matrix which is formed from the mix singls and is knowns as Range-Doppler Map(RDM).
+4. Range-Doppler Map(2D-FFT) : 1D-fft was performed on the single half column elements of the mix to show that range from 1d fft can be calculated if it is performed in the direction of changing rows. After that 2D-FFT is performed on the whole matrix which is formed from the mix signals/vectors matrix and is knowns as Range-Doppler Map(RDM).
    ```
     Mix_reshape = reshape(Mix, Nr, Nd);
 
@@ -94,7 +94,52 @@ From Figure 1. the following steps can be concluded and implemented the final pr
     ylabel('Range');
     zlabel('RDM Amplitude')
    ```
+5. CFAR Detection: A 2D CFAR is calculated based on the RDM in step 4. CFAR is calculated in such a way that edges of the matrix are not used to determine to CUT. Here Tr means training cells along range direction, Gr means guard cells along the range direction, Td means training cells along the doppler direction and Gd means guard cells along the doppler direction. 
+   ```
+   for i = Tr+Gr+1:(Nr/2)-(Gr+Tr)  %Nr/2 because of taking one side of the spectrum see line 127 and 128
+    for j = Td+Gd+1:Nd-(Gd+Td)
+        noise_level = zeros(1,1);
+        
+        for p = i-(Tr+Gr) : i+(Tr+Gr)
+            for q = j-(Td+Gd) : j+(Td+Gd)
+                if (abs(i-p) > Gr || abs(j-q) > Gd)
+                    noise_level = noise_level + db2pow(RDM(p,q));
+                end
+            end
+        end
+        
+        threshold = pow2db(noise_level / (2 * (Tr+Gr+1) * 2 * (Td+Gd+1) - (Gr * Gd)-1)); %pow2db on normalized noise level 
+        threshold = threshold + Offset;
+        CUT = RDM(i, j);
+        
+        if (CUT < threshold)
+            RDM(i, j) = 0;
+        else
+            RDM(i, j) = 1;
+        end
+        
+      end
+   end
+   ```    
 ## 2. Selection of Training, Guard cells and offset
 
+```
+    %Select the number of Training Cells in both the dimensions.
+    Tr = 12; %Training Cells in range dimension meaning along changing cols dir.
+    Td = 10; %Training Cells in doppler dimension meaning along changing rows dir.
+
+    %Select the number of Guard Cells in both dimensions around the Cell under 
+    %test (CUT) for accurate estimation
+    Gr = 4;
+    Gd = 4;
+
+    % offset the threshold by SNR value in dB
+    Offset = 1.2; 
+```
 
 ## 3. Steps taken to suppress the non-thresholded cells at the edges
+As CUT can not be located at the edges therefore cells on the edges can't take part in the thresholding process. Also to detect the signal in CUT, all values below the average noise floor(final threshold) of matrix elements which were also less than the threshold were set to 0 otherwise 1. This means we can set all values in matrix to zero where values are not zero or not 1. So in the end only those values remain in the RDM which were set to 1 by the 2D-CFAR algorithm.
+```
+    RDM(RDM ~= 0 & RDM ~= 1) = 0;
+
+```

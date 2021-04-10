@@ -6,7 +6,7 @@ clc;
 % Frequency of operation = 77GHz
 % Max Range = 200m
 % Range Resolution = 1 m
-% Max Velocity = 100 m/s
+% Max Velocity = 70 m/s
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %speed of light = 3e8
@@ -26,7 +26,7 @@ INITIAL_VELOCITY = -20; %m/s initial velocity/speed of the target
 %Operating carrier frequency of Radar 
 Fc= 77e9;             %carrier freq
 MAX_RANGE = 200;
-MAX_VELOCITY = 100;
+MAX_VELOCITY = 70; %m/s
 RANGE_RESOLUTION = 1; %1meter
 C = 3e8;
 
